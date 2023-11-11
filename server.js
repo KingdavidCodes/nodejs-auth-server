@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
+require('dotenv').config();
 const path = require('path');
 const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const { logger } = require('./middleware/logEvents');
 const errorHandler = require('./middleware/errorHandler');
+const cookieParser = require('cookie-parser');
 const PORT = process.env.PORT || 5000;
 
 // custom middleware logger
@@ -19,6 +21,9 @@ app.use(express.urlencoded({ extended: false }));
 // built-in middleware for json 
 app.use(express.json());
 
+// use cookie middleware
+app.use(cookieParser());
+
 //serve static files
 app.use('/', express.static(path.join(__dirname, '/public')));
 
@@ -26,6 +31,10 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/api/register'));
 app.use('/auth', require('./routes/api/auth'));
+app.use('/refresh', require('./routes/api/refresh'));
+app.use('/logout', require('./routes/api/logout'));
+
+// Protected routes using JWT
 app.use('/employees', require('./routes/api/employees'));
 
 app.all('*', (req, res) => {
